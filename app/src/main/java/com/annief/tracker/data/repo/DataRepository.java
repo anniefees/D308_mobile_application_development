@@ -40,7 +40,7 @@ public class DataRepository {
     public long insertEventValidated(Event e) { validateEvent(e); return run(() -> eventDao.insert(e)); }
     public int updateEventValidated(Event e) { validateEvent(e); return run(() -> eventDao.update(e)); }
     public int deleteEvent(Event e) { return run(() -> eventDao.delete(e)); }
-
+    public Event getEvent(long id) { return run(() -> eventDao.findById(id)); }
     private void validateTrip(Trip t) {
         LocalDate s = LocalDate.parse(t.getStartDate(), ISO);
         LocalDate e = LocalDate.parse(t.getEndDate(), ISO);

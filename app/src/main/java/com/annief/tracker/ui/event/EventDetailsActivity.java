@@ -19,13 +19,13 @@ public class EventDetailsActivity extends AppCompatActivity {
         repo = new DataRepository(this);
 
         title = findViewById(R.id.eventTitleInput);
-        date = findViewById(R.id.eventDateInput);
+        date  = findViewById(R.id.eventDateInput);
 
-        tripId = getIntent().getLongExtra("tripId", -1);
+        tripId  = getIntent().getLongExtra("tripId", -1);
         eventId = getIntent().getLongExtra("eventId", -1);
 
         if (eventId != -1) {
-            Event e = repo.getEventsForTrip(tripId).stream().filter(ev -> ev.getId() == eventId).findFirst().orElse(null);
+            Event e = repo.getEvent(eventId);
             if (e != null) {
                 title.setText(e.getEventTitle());
                 date.setText(e.getEventDate());
