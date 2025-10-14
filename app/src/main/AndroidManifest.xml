@@ -5,9 +5,9 @@
         android:theme="@style/Theme.TripTracker"
         android:supportsRtl="true">
 
+        <activity android:name=".ui.event.EventDetailsActivity" />
         <activity android:name=".ui.trip.TripDetailsActivity" />
         <activity android:name=".ui.trip.TripListActivity" />
-
         <activity
             android:name=".ui.home.MainActivity"
             android:exported="true">
