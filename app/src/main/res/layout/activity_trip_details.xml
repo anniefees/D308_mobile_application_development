@@ -7,40 +7,55 @@
         android:padding="16dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
         <EditText
             android:id="@+id/tripNameInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Trip name"/>
+
         <EditText
             android:id="@+id/lodgingInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Lodging"/>
+
         <EditText
             android:id="@+id/startDateInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Start date (yyyy-MM-dd)"/>
+            android:hint="Start date (tap to select)"
+            android:drawableEnd="@android:drawable/ic_menu_my_calendar"/>
+
         <EditText
             android:id="@+id/endDateInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="End date (yyyy-MM-dd)"/>
+            android:hint="End date (tap to select)"
+            android:drawableEnd="@android:drawable/ic_menu_my_calendar"/>
+
         <Button
             android:id="@+id/saveTripButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Save"/>
+
         <Button
             android:id="@+id/deleteTripButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Delete"/>
+
+        <Button
+            android:id="@+id/shareTripButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Share Trip Details"/>
+
         <Button
             android:id="@+id/eventsButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Events"/>
+            android:text="View Events"/>
     </LinearLayout>
 </ScrollView>

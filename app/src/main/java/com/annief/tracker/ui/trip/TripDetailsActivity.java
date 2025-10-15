@@ -47,6 +47,12 @@ public class TripDetailsActivity extends AppCompatActivity {
         Button save = findViewById(R.id.saveTripButton);
         Button delete = findViewById(R.id.deleteTripButton);
         Button events = findViewById(R.id.eventsButton);
+        Button share = findViewById(R.id.shareTripButton);
+
+        // Debug: Check if share button exists
+        if (share == null) {
+            showToast("Share button not found - check XML layout");
+        }
 
         // Make date fields non-editable and clickable
         start.setFocusable(false);
@@ -84,6 +90,10 @@ public class TripDetailsActivity extends AppCompatActivity {
         save.setOnClickListener(v -> onSave());
         delete.setOnClickListener(v -> onDelete());
         events.setOnClickListener(v -> onViewEvents());
+
+        if (share != null) {
+            share.setOnClickListener(v -> onShare());
+        }
     }
 
     private void showStartDatePicker() {
@@ -223,5 +233,49 @@ public class TripDetailsActivity extends AppCompatActivity {
 
     private void showToast(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    private void onShare() {
+        if (current == null) {
+            showToast("Please save the trip first");
+            return;
+        }
+
+        // Build the share message with all trip details
+        StringBuilder shareText = new StringBuilder();
+        shareText.append("Trip Details\n");
+        shareText.append("═══════════════\n\n");
+        shareText.append("Trip: ").append(current.getName()).append("\n");
+        shareText.append("Lodging: ").append(current.getLodging()).append("\n");
+        shareText.append("Start Date: ").append(current.getStartDate()).append("\n");
+        shareText.append("End Date: ").append(current.getEndDate()).append("\n");
+
+        // Add events if any - use DAO directly since we allow main thread queries
+        java.util.List<com.annief.tracker.data.entity.Event> eventList =
+                db.eventDao().getByTrip(current.getId());
+
+        // Debug: show event count
+        showToast("Found " + (eventList != null ? eventList.size() : 0) + " events");
+
+        if (eventList != null && !eventList.isEmpty()) {
+            shareText.append("\nEvents:\n");
+            shareText.append("───────────────\n");
+            for (com.annief.tracker.data.entity.Event event : eventList) {
+                shareText.append("• ").append(event.getTitle())
+                        .append(" (").append(event.getDate()).append(")\n");
+            }
+        } else {
+            shareText.append("\nNo events scheduled\n");
+        }
+
+        // Create share intent
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Trip: " + current.getName());
+        shareText.append("\n\nShared from TripTracker");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, shareText.toString());
+
+        // Show chooser to let user pick app (Email, SMS, Clipboard, etc.)
+        startActivity(Intent.createChooser(shareIntent, "Share trip via..."));
     }
 }
