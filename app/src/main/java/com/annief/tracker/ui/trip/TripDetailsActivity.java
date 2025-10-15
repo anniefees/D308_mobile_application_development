@@ -4,106 +4,81 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+
 import com.annief.tracker.R;
-import com.annief.tracker.data.entity.Event;
+import com.annief.tracker.data.db.AppDatabase;
 import com.annief.tracker.data.entity.Trip;
-import com.annief.tracker.data.repo.DataRepository;
-import com.annief.tracker.ui.adapter.EventAdapter;
-import com.annief.tracker.ui.event.EventDetailsActivity;
-import java.util.ArrayList;
-import java.util.List;
+import com.annief.tracker.ui.event.EventListActivity;
 
 public class TripDetailsActivity extends AppCompatActivity {
-    private DataRepository repo; private long tripId = -1;
-    private EditText name, lodging, start, end;
-    private final List<Event> events = new ArrayList<>();
-    private EventAdapter eventAdapter;
+    private AppDatabase db;
+    private EditText name;
+    private EditText lodging;
+    private EditText start;
+    private EditText end;
+    private Trip current;
 
-    @Override protected void onCreate(Bundle b){
-        super.onCreate(b);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trip_details);
-        repo = new DataRepository(this);
+        db = AppDatabase.getInstance(this);
         name = findViewById(R.id.tripNameInput);
         lodging = findViewById(R.id.lodgingInput);
         start = findViewById(R.id.startDateInput);
         end = findViewById(R.id.endDateInput);
-
-        RecyclerView er = findViewById(R.id.eventRecycler);
-        er.setLayoutManager(new LinearLayoutManager(this));
-        eventAdapter = new EventAdapter(events, e -> {
-            Intent i = new Intent(this, EventDetailsActivity.class);
-            i.putExtra("tripId", tripId);
-            i.putExtra("eventId", e.getId());
-            startActivity(i);
-        });
-        er.setAdapter(eventAdapter);
-
-        tripId = getIntent().getLongExtra("tripId", -1);
-        if (tripId != -1) {
-            Trip t = repo.getTrip(tripId);
-            if (t != null) {
-                name.setText(t.getTripName());
-                lodging.setText(t.getLodging());
-                start.setText(t.getStartDate());
-                end.setText(t.getEndDate());
-            }
-        }
-
         Button save = findViewById(R.id.saveTripButton);
         Button delete = findViewById(R.id.deleteTripButton);
-        Button addEvent = findViewById(R.id.addEventButton);
+        Button events = findViewById(R.id.eventsButton);
 
-        save.setOnClickListener(v -> onSave());
-        delete.setOnClickListener(v -> onDelete());
-        addEvent.setOnClickListener(v -> onAddEvent());
-    }
-
-    @Override protected void onResume() {
-        super.onResume();
+        long tripId = getIntent().getLongExtra("tripId", -1);
         if (tripId != -1) {
-            events.clear();
-            events.addAll(repo.getEventsForTrip(tripId));
-            eventAdapter.notifyDataSetChanged();
-        }
-    }
-
-    private void onSave(){
-        String n = name.getText().toString().trim();
-        String l = lodging.getText().toString().trim();
-        String s = start.getText().toString().trim();
-        String e = end.getText().toString().trim();
-        if (n.isEmpty() || l.isEmpty() || s.isEmpty() || e.isEmpty()) { toast("All fields required"); return; }
-        Trip t = new Trip(tripId, n, l, s, e);
-        try {
-            if (tripId == -1) {
-                tripId = repo.insertTrip(t);
-                toast("Saved");
-            } else {
-                repo.updateTrip(t);
-                toast("Updated");
+            current = db.tripDao().getById(tripId);
+            if (current != null) {
+                name.setText(current.getName());
+                lodging.setText(current.getLodging());
+                start.setText(current.getStartDate());
+                end.setText(current.getEndDate());
             }
-        } catch (Exception ex) {
-            toast(ex.getMessage());
         }
-    }
 
-    private void onDelete(){
-        if (tripId == -1) { finish(); return; }
-        Trip t = repo.getTrip(tripId);
-        int result = repo.deleteTripIfNoEvents(t);
-        if (result == 0) toast("Cannot delete: events exist"); else finish();
-    }
+        save.setOnClickListener(v -> {
+            String n = name.getText().toString().trim();
+            String l = lodging.getText().toString().trim();
+            String s = start.getText().toString().trim();
+            String e = end.getText().toString().trim();
+            if (current == null) {
+                current = new Trip(n, l, s, e);
+                long id = db.tripDao().insert(current);
+                current.setId(id);
+            } else {
+                current.setName(n);
+                current.setLodging(l);
+                current.setStartDate(s);
+                current.setEndDate(e);
+                db.tripDao().update(current);
+            }
+            finish();
+        });
 
-    private void onAddEvent(){
-        if (tripId == -1) { toast("Save trip first"); return; }
-        Intent i = new Intent(this, EventDetailsActivity.class);
-        i.putExtra("tripId", tripId);
-        startActivity(i);
-    }
+        delete.setOnClickListener(v -> {
+            if (current != null) {
+                int count = db.tripDao().countEventsForTrip(current.getId());
+                if (count == 0) {
+                    db.tripDao().delete(current);
+                    finish();
+                }
+            }
+        });
 
-    private void toast(String s){ Toast.makeText(this, s, Toast.LENGTH_SHORT).show(); }
+        events.setOnClickListener(v -> {
+            if (current != null) {
+                Intent i = new Intent(this, EventListActivity.class);
+                i.putExtra("tripId", current.getId());
+                startActivity(i);
+            }
+        });
+    }
 }

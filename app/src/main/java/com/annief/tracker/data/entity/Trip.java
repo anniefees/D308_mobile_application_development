@@ -7,16 +7,15 @@ import androidx.room.PrimaryKey;
 public class Trip {
     @PrimaryKey(autoGenerate = true)
     private long id;
-    private String tripName;
+    private String name;
     private String lodging;
     private String startDate;
     private String endDate;
 
     public Trip() {}
 
-    public Trip(long id, String tripName, String lodging, String startDate, String endDate) {
-        this.id = id;
-        this.tripName = tripName;
+    public Trip(String name, String lodging, String startDate, String endDate) {
+        this.name = name;
         this.lodging = lodging;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -24,8 +23,8 @@ public class Trip {
 
     public long getId() { return id; }
     public void setId(long id) { this.id = id; }
-    public String getTripName() { return tripName; }
-    public void setTripName(String tripName) { this.tripName = tripName; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
     public String getLodging() { return lodging; }
     public void setLodging(String lodging) { this.lodging = lodging; }
     public String getStartDate() { return startDate; }

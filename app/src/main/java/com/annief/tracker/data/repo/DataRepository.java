@@ -10,48 +10,86 @@ import com.annief.tracker.data.entity.Trip;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class DataRepository {
+
     private final TripDao tripDao;
     private final EventDao eventDao;
-    private final ExecutorService io = Executors.newSingleThreadExecutor();
-    private static final DateTimeFormatter ISO = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final DateTimeFormatter ISO_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-    public DataRepository(Context ctx) {
-        AppDatabase db = AppDatabase.getInstance(ctx);
+    public DataRepository(Context context) {
+        AppDatabase db = AppDatabase.getInstance(context);
         this.tripDao = db.tripDao();
         this.eventDao = db.eventDao();
     }
 
-    private <T> T run(Callable<T> task) {
-        try { return io.submit(task).get(); } catch (Exception e) { throw new RuntimeException(e); }
+    // Trip operations
+    public List<Trip> getAllTrips() {
+        return tripDao.getAll();
     }
 
-    public List<Trip> getAllTrips() { return run(tripDao::getAll); }
-    public Trip getTrip(long id) { return run(() -> tripDao.findById(id)); }
-    public long insertTrip(Trip t) { validateTrip(t); return run(() -> tripDao.insert(t)); }
-    public int updateTrip(Trip t) { validateTrip(t); return run(() -> tripDao.update(t)); }
-    public int deleteTripIfNoEvents(Trip t) { return run(() -> tripDao.countEventsForTrip(t.getId()) > 0 ? 0 : tripDao.delete(t)); }
-
-    public List<Event> getEventsForTrip(long tripId) { return run(() -> eventDao.getForTrip(tripId)); }
-    public long insertEventValidated(Event e) { validateEvent(e); return run(() -> eventDao.insert(e)); }
-    public int updateEventValidated(Event e) { validateEvent(e); return run(() -> eventDao.update(e)); }
-    public int deleteEvent(Event e) { return run(() -> eventDao.delete(e)); }
-    public Event getEvent(long id) { return run(() -> eventDao.findById(id)); }
-    private void validateTrip(Trip t) {
-        LocalDate s = LocalDate.parse(t.getStartDate(), ISO);
-        LocalDate e = LocalDate.parse(t.getEndDate(), ISO);
-        if (!e.isAfter(s)) throw new IllegalArgumentException("End date must be after start date");
+    public Trip getTrip(long id) {
+        return tripDao.findById(id);
     }
 
-    private void validateEvent(Event ev) {
-        Trip parent = getTrip(ev.getTripId());
-        LocalDate d = LocalDate.parse(ev.getEventDate(), ISO);
-        LocalDate s = LocalDate.parse(parent.getStartDate(), ISO);
-        LocalDate e = LocalDate.parse(parent.getEndDate(), ISO);
-        if (d.isBefore(s) || d.isAfter(e)) throw new IllegalArgumentException("Event date must be within trip");
+    public long insertTrip(Trip trip) {
+        validateTrip(trip);
+        return tripDao.insert(trip);
+    }
+
+    public int updateTrip(Trip trip) {
+        validateTrip(trip);
+        return tripDao.update(trip);
+    }
+
+    public int deleteTripIfNoEvents(Trip trip) {
+        int eventCount = tripDao.countEventsForTrip(trip.getId());
+        if (eventCount == 0) {
+            return tripDao.delete(trip);
+        }
+        return 0; // Indicates deletion was blocked
+    }
+
+    // Event operations
+    public List<Event> getEventsForTrip(long tripId) {
+        return eventDao.getForTrip(tripId);
+    }
+
+    public long insertEvent(Event event) {
+        validateEvent(event);
+        return eventDao.insert(event);
+    }
+
+    public int updateEvent(Event event) {
+        validateEvent(event);
+        return eventDao.update(event);
+    }
+
+    public int deleteEvent(Event event) {
+        return eventDao.delete(event);
+    }
+
+    public Event getEvent(long id) {
+        return eventDao.findById(id);
+    }
+
+    // Validation logic
+    private void validateTrip(Trip trip) {
+        LocalDate startDate = LocalDate.parse(trip.getStartDate(), ISO_DATE_FORMATTER);
+        LocalDate endDate = LocalDate.parse(trip.getEndDate(), ISO_DATE_FORMATTER);
+        if (!endDate.isAfter(startDate) && !endDate.isEqual(startDate)) {
+            throw new IllegalArgumentException("End date must be on or after the start date.");
+        }
+    }
+
+    private void validateEvent(Event event) {
+        Trip parentTrip = getTrip(event.getTripId());
+        LocalDate eventDate = LocalDate.parse(event.getDate(), ISO_DATE_FORMATTER);
+        LocalDate tripStartDate = LocalDate.parse(parentTrip.getStartDate(), ISO_DATE_FORMATTER);
+        LocalDate tripEndDate = LocalDate.parse(parentTrip.getEndDate(), ISO_DATE_FORMATTER);
+
+        if (eventDate.isBefore(tripStartDate) || eventDate.isAfter(tripEndDate)) {
+            throw new IllegalArgumentException("Event date must be within the trip's start and end dates.");
+        }
     }
 }

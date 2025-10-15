@@ -5,16 +5,18 @@ import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
+
 import com.annief.tracker.data.entity.Event;
+
 import java.util.List;
 
 @Dao
 public interface EventDao {
-    @Query("SELECT * FROM events WHERE tripId = :tripId ORDER BY eventDate")
-    List<Event> getForTrip(long tripId);
+    @Query("SELECT * FROM events WHERE tripId=:tripId ORDER BY date")
+    List<Event> getByTrip(long tripId);
 
-    @Query("SELECT * FROM events WHERE id = :id LIMIT 1")
-    Event findById(long id);
+    @Query("SELECT * FROM events WHERE id=:id LIMIT 1")
+    Event getById(long id);
 
     @Insert
     long insert(Event e);

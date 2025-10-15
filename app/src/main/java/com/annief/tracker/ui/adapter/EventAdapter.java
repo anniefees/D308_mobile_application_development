@@ -4,28 +4,53 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.annief.tracker.R;
 import com.annief.tracker.data.entity.Event;
+
 import java.util.List;
 
 public class EventAdapter extends RecyclerView.Adapter<EventAdapter.VH> {
-    public interface OnClick { void onClick(Event e); }
-    private final List<Event> items; private final OnClick onClick;
-    public EventAdapter(List<Event> items, OnClick onClick) { this.items = items; this.onClick = onClick; }
+    public interface OnEventClick { void onEventClick(Event e); }
+
+    private final List<Event> items;
+    private final OnEventClick listener;
+
+    public EventAdapter(List<Event> items, OnEventClick listener) {
+        this.items = items;
+        this.listener = listener;
+    }
+
+    @NonNull
+    @Override
+    public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_event, parent, false);
+        return new VH(v);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull VH holder, int position) {
+        Event e = items.get(position);
+        holder.title.setText(e.getTitle());
+        holder.date.setText(e.getDate());
+        holder.itemView.setOnClickListener(v -> listener.onEventClick(e));
+    }
+
+    @Override
+    public int getItemCount() {
+        return items.size();
+    }
+
     static class VH extends RecyclerView.ViewHolder {
-        TextView title, date;
-        VH(View v){ super(v); title=v.findViewById(R.id.eventTitleText); date=v.findViewById(R.id.eventDateText); }
+        TextView title;
+        TextView date;
+        VH(@NonNull View itemView) {
+            super(itemView);
+            title = itemView.findViewById(R.id.eventTitle);
+            date = itemView.findViewById(R.id.eventDate);
+        }
     }
-    @NonNull @Override public VH onCreateViewHolder(@NonNull ViewGroup p, int vType){
-        return new VH(LayoutInflater.from(p.getContext()).inflate(R.layout.item_event, p, false));
-    }
-    @Override public void onBindViewHolder(@NonNull VH h, int i){
-        Event e = items.get(i);
-        h.title.setText(e.getEventTitle());
-        h.date.setText(e.getEventDate());
-        h.itemView.setOnClickListener(v -> onClick.onClick(e));
-    }
-    @Override public int getItemCount(){ return items.size(); }
 }

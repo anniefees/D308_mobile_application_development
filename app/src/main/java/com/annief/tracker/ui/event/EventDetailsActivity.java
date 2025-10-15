@@ -4,59 +4,70 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.annief.tracker.R;
 import com.annief.tracker.data.entity.Event;
 import com.annief.tracker.data.repo.DataRepository;
 
 public class EventDetailsActivity extends AppCompatActivity {
-    private DataRepository repo; private long tripId; private long eventId = -1;
-    private EditText title, date;
+    private DataRepository dataRepository;
+    private long tripId;
+    private long eventId;
+    private EditText title;
+    private EditText date;
+    private Event current;
 
-    @Override protected void onCreate(Bundle b){
-        super.onCreate(b);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_details);
-        repo = new DataRepository(this);
-
-        title = findViewById(R.id.eventTitleInput);
-        date  = findViewById(R.id.eventDateInput);
-
-        tripId  = getIntent().getLongExtra("tripId", -1);
+        dataRepository = new DataRepository(getApplication());
+        tripId = getIntent().getLongExtra("tripId", -1);
         eventId = getIntent().getLongExtra("eventId", -1);
+        title = findViewById(R.id.eventTitleInput);
+        date = findViewById(R.id.eventDateInput);
+        Button save = findViewById(R.id.saveEventButton);
+        Button delete = findViewById(R.id.deleteEventButton);
 
         if (eventId != -1) {
-            Event e = repo.getEvent(eventId);
-            if (e != null) {
-                title.setText(e.getEventTitle());
-                date.setText(e.getEventDate());
+            current = dataRepository.getEvent(eventId);
+            if (current != null) {
+                title.setText(current.getTitle());
+                date.setText(current.getDate());
             }
         }
 
-        Button save = findViewById(R.id.saveEventButton);
-        Button delete = findViewById(R.id.deleteEventButton);
-        save.setOnClickListener(v -> onSave());
-        delete.setOnClickListener(v -> onDelete());
-    }
+        save.setOnClickListener(v -> {
+            String t = title.getText().toString().trim();
+            String d = date.getText().toString().trim();
 
-    private void onSave(){
-        String t = title.getText().toString().trim();
-        String d = date.getText().toString().trim();
-        if (t.isEmpty() || d.isEmpty()) { toast("All fields required"); return; }
-        if (!d.matches("\\d{4}-\\d{2}-\\d{2}")) { toast("Use yyyy-MM-dd"); return; }
-        Event e = new Event(eventId, tripId, t, d);
-        try {
-            if (eventId == -1) { eventId = repo.insertEventValidated(e); toast("Saved"); }
-            else { repo.updateEventValidated(e); toast("Updated"); }
-            finish();
-        } catch (Exception ex) { toast(ex.getMessage()); }
-    }
+            if (t.isEmpty() || d.isEmpty()) {
+                Toast.makeText(this, "Title and date cannot be empty.", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-    private void onDelete(){
-        if (eventId == -1) { finish(); return; }
-        Event e = new Event(eventId, tripId, title.getText().toString(), date.getText().toString());
-        repo.deleteEvent(e);
-        finish();
-    }
+            try {
+                if (current == null) {
+                    Event e = new Event(tripId, t, d);
+                    dataRepository.insertEvent(e);
+                } else {
+                    current.setTitle(t);
+                    current.setDate(d);
+                    dataRepository.updateEvent(current);
+                }
+                finish();
+            } catch (IllegalArgumentException ex) {
+                Toast.makeText(this, ex.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
 
-    private void toast(String s){ Toast.makeText(this, s, Toast.LENGTH_SHORT).show(); }
+        delete.setOnClickListener(v -> {
+            if (current != null) {
+                dataRepository.deleteEvent(current);
+                finish();
+            }
+        });
+    }
 }

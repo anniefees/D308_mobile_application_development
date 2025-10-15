@@ -4,29 +4,55 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.annief.tracker.R;
 import com.annief.tracker.data.entity.Trip;
+
 import java.util.List;
 
 public class TripAdapter extends RecyclerView.Adapter<TripAdapter.VH> {
-    public interface OnClick { void onClick(Trip t); }
-    private final List<Trip> items; private final OnClick onClick;
-    public TripAdapter(List<Trip> items, OnClick onClick) { this.items = items; this.onClick = onClick; }
+    public interface OnTripClick { void onTripClick(Trip trip); }
+
+    private final List<Trip> items;
+    private final OnTripClick listener;
+
+    public TripAdapter(List<Trip> items, OnTripClick listener) {
+        this.items = items;
+        this.listener = listener;
+    }
+
+    @NonNull
+    @Override
+    public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_trip, parent, false);
+        return new VH(v);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull VH holder, int position) {
+        Trip t = items.get(position);
+        holder.title.setText(t.getName());
+        String s = t.getStartDate() == null ? "" : t.getStartDate();
+        String e = t.getEndDate() == null ? "" : t.getEndDate();
+        holder.subtitle.setText(s + " - " + e);
+        holder.itemView.setOnClickListener(v -> listener.onTripClick(t));
+    }
+
+    @Override
+    public int getItemCount() {
+        return items.size();
+    }
+
     static class VH extends RecyclerView.ViewHolder {
-        TextView name, dates, lodging;
-        VH(View v){ super(v); name=v.findViewById(R.id.tripNameText); dates=v.findViewById(R.id.tripDatesText); lodging=v.findViewById(R.id.lodgingText); }
+        TextView title;
+        TextView subtitle;
+        VH(@NonNull View itemView) {
+            super(itemView);
+            title = itemView.findViewById(R.id.tripTitle);
+            subtitle = itemView.findViewById(R.id.tripDates);
+        }
     }
-    @NonNull @Override public VH onCreateViewHolder(@NonNull ViewGroup p, int vType){
-        return new VH(LayoutInflater.from(p.getContext()).inflate(R.layout.item_trip, p, false));
-    }
-    @Override public void onBindViewHolder(@NonNull VH h, int i){
-        Trip t = items.get(i);
-        h.name.setText(t.getTripName());
-        h.dates.setText(t.getStartDate() + " \u2192 " + t.getEndDate());
-        h.lodging.setText(t.getLodging());
-        h.itemView.setOnClickListener(v -> onClick.onClick(t));
-    }
-    @Override public int getItemCount(){ return items.size(); }
 }
