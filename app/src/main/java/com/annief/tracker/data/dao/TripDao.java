@@ -29,4 +29,6 @@ public interface TripDao {
 
     @Query("SELECT COUNT(*) FROM events WHERE tripId=:tripId")
     int countEventsForTrip(long tripId);
+
+
 }

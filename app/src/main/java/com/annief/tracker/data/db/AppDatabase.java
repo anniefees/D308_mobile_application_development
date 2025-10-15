@@ -11,7 +11,7 @@ import com.annief.tracker.data.dao.TripDao;
 import com.annief.tracker.data.entity.Event;
 import com.annief.tracker.data.entity.Trip;
 
-@Database(entities = {Trip.class, Event.class}, version = 1, exportSchema = false)
+@Database(entities = {Trip.class, Event.class}, version = 2, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
     private static volatile AppDatabase INSTANCE;
 
@@ -22,7 +22,10 @@ public abstract class AppDatabase extends RoomDatabase {
         if (INSTANCE == null) {
             synchronized (AppDatabase.class) {
                 if (INSTANCE == null) {
-                    INSTANCE = Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class, "triptracker.db").allowMainThreadQueries().build();
+                    INSTANCE = Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class, "triptracker.db")
+                            .allowMainThreadQueries()
+                            .fallbackToDestructiveMigration()  // ADD THIS LINE
+                            .build();
                 }
             }
         }

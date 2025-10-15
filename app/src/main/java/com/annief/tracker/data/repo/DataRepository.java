@@ -29,7 +29,7 @@ public class DataRepository {
     }
 
     public Trip getTrip(long id) {
-        return tripDao.findById(id);
+        return tripDao.getById(id);  // FIXED: was findById
     }
 
     public long insertTrip(Trip trip) {
@@ -52,7 +52,7 @@ public class DataRepository {
 
     // Event operations
     public List<Event> getEventsForTrip(long tripId) {
-        return eventDao.getForTrip(tripId);
+        return eventDao.getByTrip(tripId);  // FIXED: was getForTrip
     }
 
     public long insertEvent(Event event) {
@@ -70,7 +70,7 @@ public class DataRepository {
     }
 
     public Event getEvent(long id) {
-        return eventDao.findById(id);
+        return eventDao.getById(id);  // FIXED: was findById
     }
 
     // Validation logic
