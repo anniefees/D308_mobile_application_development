@@ -13,6 +13,7 @@ import com.annief.tracker.R;
 import com.annief.tracker.data.entity.Event;
 import com.annief.tracker.data.entity.Trip;
 import com.annief.tracker.data.repo.DataRepository;
+import com.annief.tracker.util.AlertHelper;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -42,6 +43,7 @@ public class EventDetailsActivity extends AppCompatActivity {
         date = findViewById(R.id.eventDateInput);
         Button save = findViewById(R.id.saveEventButton);
         Button delete = findViewById(R.id.deleteEventButton);
+        Button setAlert = findViewById(R.id.setEventAlertButton);
 
         // Make date field non-editable and clickable
         date.setFocusable(false);
@@ -73,6 +75,7 @@ public class EventDetailsActivity extends AppCompatActivity {
 
         save.setOnClickListener(v -> onSave());
         delete.setOnClickListener(v -> onDelete());
+        setAlert.setOnClickListener(v -> onSetAlert());
     }
 
     private void showDatePicker() {
@@ -162,5 +165,13 @@ public class EventDetailsActivity extends AppCompatActivity {
 
     private void showToast(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    private void onSetAlert() {
+        if (current == null || current.getDate() == null || current.getDate().isEmpty()) {
+            showToast("Please save the event with a date first");
+            return;
+        }
+        AlertHelper.scheduleEventAlert(this, current.getId(), current.getTitle(), current.getDate());
     }
 }

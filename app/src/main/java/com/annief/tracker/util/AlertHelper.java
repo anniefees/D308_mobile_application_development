@@ -73,7 +73,7 @@ public class AlertHelper {
                 Toast.makeText(context, "Alert set for " + dateStr + " at 8:00 AM", Toast.LENGTH_LONG).show();
             }
         } catch (Exception e) {
-            Toast.makeText(context, "Error setting alert: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Error setting alert: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 

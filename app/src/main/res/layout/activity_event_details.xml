@@ -7,21 +7,32 @@
         android:padding="16dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
         <EditText
             android:id="@+id/eventTitleInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Event title"/>
+
         <EditText
             android:id="@+id/eventDateInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Event date (yyyy-MM-dd)"/>
+            android:hint="Event date (tap to select)"
+            android:drawableEnd="@android:drawable/ic_menu_my_calendar"/>
+
         <Button
             android:id="@+id/saveEventButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Save"/>
+
+        <Button
+            android:id="@+id/setEventAlertButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Set Event Alert"/>
+
         <Button
             android:id="@+id/deleteEventButton"
             android:layout_width="match_parent"
