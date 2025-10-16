@@ -41,6 +41,18 @@
             android:text="Save"/>
 
         <Button
+            android:id="@+id/setStartAlertButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Set Start Date Alert"/>
+
+        <Button
+            android:id="@+id/setEndAlertButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Set End Date Alert"/>
+
+        <Button
             android:id="@+id/deleteTripButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

@@ -15,6 +15,7 @@ import com.annief.tracker.data.db.AppDatabase;
 import com.annief.tracker.data.entity.Trip;
 import com.annief.tracker.data.repo.DataRepository;
 import com.annief.tracker.ui.event.EventListActivity;
+import com.annief.tracker.util.AlertHelper;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -48,6 +49,8 @@ public class TripDetailsActivity extends AppCompatActivity {
         Button delete = findViewById(R.id.deleteTripButton);
         Button events = findViewById(R.id.eventsButton);
         Button share = findViewById(R.id.shareTripButton);
+        Button setStartAlert = findViewById(R.id.setStartAlertButton);
+        Button setEndAlert = findViewById(R.id.setEndAlertButton);
 
         // Debug: Check if share button exists
         if (share == null) {
@@ -94,6 +97,9 @@ public class TripDetailsActivity extends AppCompatActivity {
         if (share != null) {
             share.setOnClickListener(v -> onShare());
         }
+
+        setStartAlert.setOnClickListener(v -> onSetStartAlert());
+        setEndAlert.setOnClickListener(v -> onSetEndAlert());
     }
 
     private void showStartDatePicker() {
@@ -235,6 +241,22 @@ public class TripDetailsActivity extends AppCompatActivity {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
+    private void onSetStartAlert() {
+        if (current == null || current.getStartDate() == null || current.getStartDate().isEmpty()) {
+            showToast("Please save the trip with a start date first");
+            return;
+        }
+        AlertHelper.scheduleStartAlert(this, current.getId(), current.getName(), current.getStartDate());
+    }
+
+    private void onSetEndAlert() {
+        if (current == null || current.getEndDate() == null || current.getEndDate().isEmpty()) {
+            showToast("Please save the trip with an end date first");
+            return;
+        }
+        AlertHelper.scheduleEndAlert(this, current.getId(), current.getName(), current.getEndDate());
+    }
+
     private void onShare() {
         if (current == null) {
             showToast("Please save the trip first");
@@ -253,9 +275,6 @@ public class TripDetailsActivity extends AppCompatActivity {
         // Add events if any - use DAO directly since we allow main thread queries
         java.util.List<com.annief.tracker.data.entity.Event> eventList =
                 db.eventDao().getByTrip(current.getId());
-
-        // Debug: show event count
-        showToast("Found " + (eventList != null ? eventList.size() : 0) + " events");
 
         if (eventList != null && !eventList.isEmpty()) {
             shareText.append("\nEvents:\n");
@@ -278,4 +297,5 @@ public class TripDetailsActivity extends AppCompatActivity {
         // Show chooser to let user pick app (Email, SMS, Clipboard, etc.)
         startActivity(Intent.createChooser(shareIntent, "Share trip via..."));
     }
+
 }
