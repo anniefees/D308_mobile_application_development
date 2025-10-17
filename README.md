@@ -1,28 +1,135 @@
-<strong> **DO NOT DISTRIBUTE OR PUBLICLY POST SOLUTIONS TO THESE LABS. MAKE ALL FORKS OF THIS REPOSITORY WITH SOLUTION CODE PRIVATE. PLEASE REFER TO THE STUDENT CODE OF CONDUCT AND ETHICAL EXPECTATIONS FOR COLLEGE OF INFORMATION TECHNOLOGY STUDENTS FOR SPECIFICS. ** </strong>
+# TripTracker - Vacation Management Application
 
-# WESTERN GOVERNORS UNIVERSITY 
-## D308 – MOBILE APPLICATION DEVELOPMENT (ANDROID)
-Welcome to Mobile Application Development (Android)! This is an opportunity for students to create page layouts with clean navigation, design mobile application infrastructure and user interfaces, develop secure database-backed mobile applications in an object-oriented language, document solutions for application requirements with storyboards and emulators, articulate challenges in the development process, and describe alternatives methods in overcoming mobile application development problems. 
+## Purpose
+TripTracker is an Android mobile application designed to help users organize and manage their vacation plans. Users can create multiple trips with lodging details, set date-based alerts, and manage excursions/events associated with each trip. The application provides sharing capabilities to easily send trip details to others via email, SMS, or clipboard.
 
-FOR SPECIFIC TASK INSTRUCTIONS AND REQUIREMENTS FOR THIS ASSESSMENT, PLEASE REFER TO THE COURSE PAGE.
-## BASIC INSTRUCTIONS
-For this assessment, you have an opportunity to test your competency as a mobile application developer. Your understanding of mobile application structure and design will help you to develop applications to meet customer requirements. This task will allow you to demonstrate your ability to apply the skills learned in the course.
+## Android Version
+**Deployment**: Android 8.0 (API 26) and higher  
+**Target SDK**: Android 14 (API 34)
 
-## SUPPLEMENTAL RESOURCES 
-1.	How to clone a project to Android Studio using Git?
+## Features
+- Create, edit, and delete vacation trips
+- Add multiple events/excursions to each trip
+- Date validation (end dates after start dates, events within trip dates)
+- Set alerts for trip start/end dates and individual events
+- Share complete trip details via email, SMS, or clipboard
+- Visual overview dashboard showing all trips and events
+- Room Database for local data persistence
 
-> Ensure that Android Studio and Git are installed on your system.  New Project, Get from VCS button or the File/New/Project from Version Control. This will open a window  with a prompt to clone the project. Save it in a safe location for the directory and press clone. IntelliJ will prompt you for your credentials. Enter in your WGU Credentials and the project will be cloned onto your local machine.
+## How to Use the Application
 
-2. How to create a branch and start Development?
+### Getting Started
+1. Launch TripTracker
+2. You'll see the **Home Screen** with an overview of all your vacations
 
-- GitLab method
-> Press the '+' button located near your branch name. In the dropdown list, press the 'New branch' button. This will allow you to create a name for your branch. Once the branch has been named, you can select 'Create Branch' to push the branch to your repository.
+### Managing Vacations
 
-- Android Studio method
-> In Android Studio, Go to the 'Git' button on the top toolbar. Select the new branch option and create a name for the branch. Make sure checkout branch is selected and press create. You can now add a commit message and push the new branch to the local repo.
+#### Adding a New Vacation
+1. From the Home Screen, tap the **+ (FAB) button** in the bottom right
+2. This takes you to the Trip List screen
+3. Tap the **+ button** again
+4. Fill in the required fields:
+    - **Trip Name**: e.g., "Bermuda Trip", "Spring Break"
+    - **Lodging**: Hotel or accommodation name
+    - **Start Date**: Tap the field to open date picker
+    - **End Date**: Tap the field to open date picker (must be on or after start date)
+5. Click **Save**
 
-## SUPPORT
-If you need additional support, please navigate to the course page and reach out to your course instructor.
-## FUTURE USE
-Take this opportunity to create or add to a simple resume portfolio to highlight and showcase your work for future use in career search, experience, and education!
+#### Editing a Vacation
+1. From the Home Screen, **tap any vacation card**
+2. Modify any fields
+3. Click **Save**
 
+#### Deleting a Vacation
+1. Open the vacation details
+2. Click **Delete**
+3. **Note**: You cannot delete a vacation if it has events - delete all events first
+4. Confirm deletion
+
+#### Setting Alerts
+1. Open vacation details (must be saved first)
+2. Click **Set Start Date Alert** - notification triggers at 8:00 AM on start date
+3. Click **Set End Date Alert** - notification triggers at 8:00 AM on end date
+4. **Note**: Cannot set alerts for past dates
+
+#### Sharing Vacation Details
+1. Open vacation details
+2. Click **Share Trip Details**
+3. Choose sharing method (Email, SMS, Copy to clipboard, etc.)
+4. The message includes trip name, lodging, dates, and all events
+
+### Managing Events/Excursions
+
+#### Adding Events to a Vacation
+1. Open vacation details
+2. Click **View Events**
+3. Tap the **+ (FAB) button**
+4. Fill in:
+    - **Event Title**: e.g., "Snorkeling", "Hiking", "Bus Tour"
+    - **Event Date**: Must be within the vacation's start and end dates
+5. Click **Save**
+
+#### Editing an Event
+1. From Event List, tap the event
+2. Modify title or date
+3. Click **Save**
+
+#### Deleting an Event
+1. Open event details
+2. Click **Delete**
+3. Confirm deletion
+
+#### Setting Event Alerts
+1. Open event details (must be saved first)
+2. Click **Set Event Alert**
+3. Notification triggers at 8:00 AM on the event date
+
+## Accessing All Required Features
+
+- **Home Screen**: Launch app (shows vacation overview with events)
+- **Vacation List**: Home → Tap FAB button
+- **Add Vacation**: Vacation List → Tap FAB → Fill form → Save
+- **Edit Vacation**: Home → Tap vacation card → Modify → Save
+- **Delete Vacation**: Vacation Details → Delete (only if no events)
+- **View Events**: Vacation Details → "View Events" button
+- **Add Event**: Event List → Tap FAB → Fill form → Save
+- **Edit Event**: Event List → Tap event → Modify → Save
+- **Delete Event**: Event Details → Delete → Confirm
+- **Date Validation**: Automatic (date pickers enforce valid ranges)
+- **Set Alerts**: Trip/Event Details → "Set Alert" buttons
+- **Share Trip**: Trip Details → "Share Trip Details" button
+
+## GitLab Repository
+**Repository URL**: https://gitlab.com/wgu-gitlab-environment/student-repos/anniefees/d308-mobile-application-development-android.git
+
+## Technical Details
+- **Database**: Room Framework (abstraction layer over SQLite)
+- **Minimum SDK**: API 26 (Android 8.0 Oreo)
+- **Target SDK**: API 34 (Android 14)
+- **Architecture**: MVVM with Repository pattern
+- **Key Components**:
+    - Room Database with Trip and Event entities
+    - Foreign key relationships
+    - Date validation logic
+    - Alert scheduling with AlarmManager
+    - Share functionality with Intent chooser
+
+## Project Structure
+```
+com.annief.tracker/
+├── data/
+│   ├── dao/           # Database access objects
+│   ├── db/            # Database configuration
+│   ├── entity/        # Data models (Trip, Event)
+│   └── repo/          # Repository pattern implementation
+├── ui/
+│   ├── adapter/       # RecyclerView adapters
+│   ├── event/         # Event/Excursion screens
+│   ├── home/          # Home screen
+│   └── trip/          # Trip/Vacation screens
+└── util/              # Helper classes (Alerts)
+```
+
+---
+**Version**: 1.0  
+**Last Updated**: October 2025
